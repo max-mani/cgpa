@@ -432,9 +432,9 @@ export default function KCTCSECGPACalculator() {
                 <span>Overall CGPA</span>
               </h2>
               <div className="relative inline-block">
-                <div className="w-40 h-40 bg-gradient-to-br from-slate-700 to-slate-800 rounded-full shadow-2xl flex items-center justify-center relative overflow-hidden">
+                <div className="w-56 h-56 bg-gradient-to-br from-slate-700 to-slate-800 rounded-full shadow-2xl flex items-center justify-center relative overflow-hidden">
                   <div className="absolute inset-0 bg-white/10 rounded-full animate-pulse"></div>
-                  <span className="text-5xl font-bold text-white relative z-10">{calculateCGPA}</span>
+                  <span className="text-4xl md:text-5xl font-bold text-white relative z-10 break-words text-center" style={{wordBreak: 'break-all'}}>{calculateCGPA}</span>
                 </div>
                 <div className="absolute -top-2 -right-2 w-6 h-6 bg-slate-600 rounded-full animate-bounce"></div>
               </div>
