@@ -170,7 +170,7 @@ export default function KCTCSECGPACalculator() {
       }
     })
 
-    return totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(2) : "0.00"
+    return totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(4) : "0.0000"
   }
 
   const calculateCGPA = useMemo(() => {
@@ -190,7 +190,7 @@ export default function KCTCSECGPACalculator() {
       })
     })
 
-    return totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(2) : "0.00"
+    return totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(4) : "0.0000"
   }, [grades])
 
   return (
