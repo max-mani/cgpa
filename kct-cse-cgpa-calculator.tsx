@@ -542,6 +542,11 @@ export default function KCTCSECGPACalculator() {
               &copy; {new Date().getFullYear()} CGPA Calculator - KCT CSE. Built with dedication for academic excellence.
             </p>
             <p className="text-slate-500 text-xs mt-2">Computer Science & Engineering Department • Character is life</p>
+            <p className="text-slate-500 text-xs mt-2">
+              Made by <span className="font-semibold">ManiKandan M (23BCS082)</span> &bull; 
+              <a href="https://manikandan-m-portfolio.netlify.app/" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">Portfolio</a> &bull; 
+              <a href="https://www.linkedin.com/in/19manikandan-m/" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600">LinkedIn</a>
+            </p>
           </div>
         </div>
       </footer>
