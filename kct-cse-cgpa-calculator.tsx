@@ -46,18 +46,19 @@ const semesterData = [
     icon: <GraduationCap className="w-5 h-5" />,
     color: "from-slate-700 to-slate-800",
     courses: [
-      { code: "U18EEI1201", name: "BASIC ELECTRICAL AND ELECTRONICS ENGINEERING", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
-      { code: "U18PHI1202", name: "ENGINEERING PHYSICS", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
-      { code: "U18MAI1202", name: "LINEAR ALGEBRA AND CALCULUS", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
-      { code: "U18CSI1201", name: "STRUCTURED PROGRAMMING USING C", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
-      { code: "U18INI1600", name: "ENGINEERING CLINIC -I", credits: 3, type: "Core", requirement: "Practical" },
-      { code: "U18TLR1001", name: "HERITAGE OF TAMILS", credits: 1, type: "Core", requirement: "Theory" },
-      { code: "U18CSR1001", name: "DISRUPTIVE TECHNOLOGIES", credits: 2, type: "Audit Course", requirement: "Theory" },
-      // Language electives
-      { code: "U18JAI2201", name: "JAPANESE LEVEL I", credits: 3, type: "Elective", requirement: "Theory" },
-      { code: "U18HII2201", name: "HINDI LEVEL I", credits: 3, type: "Elective", requirement: "Theory" },
-      { code: "U18GEI2201", name: "GERMAN LEVEL I", credits: 3, type: "Elective", requirement: "Theory" },
-      { code: "U18FRI2201", name: "FRENCH LEVEL I", credits: 3, type: "Elective", requirement: "Theory" },
+      { code: "U18TLR1001-R21", name: "HERITAGE OF TAMILS", credits: 1, type: "Core", requirement: "Theory" },
+      { code: "U18MAI1202I-R18", name: "LINEAR ALGEBRA AND CALCULUS", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
+      { code: "U18PHI1202I-R18", name: "ENGINEERING PHYSICS", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
+      { code: "U18EEI1201I-R18", name: "BASIC ELECTRICAL AND ELECTRONICS ENGINEERING", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
+      { code: "U18INI1600-R21", name: "ENGINEERING CLINIC -I", credits: 3, type: "Core", requirement: "Practical" },
+      { code: "U18CSI1201I-R18", name: "STRUCTURED PROGRAMMING USING C", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
+      { code: "U18CSR1001-R21", name: "DISRUPTIVE TECHNOLOGIES", credits: 2, type: "Audit Course", requirement: "Theory" },
+    ],
+    languageElectives: [
+      { code: "U18JAI2201", name: "JAPANESE LEVEL I", credits: 3, type: "Elective" as CourseType, requirement: "Theory" as SubjectRequirement },
+      { code: "U18HII2201", name: "HINDI LEVEL I", credits: 3, type: "Elective" as CourseType, requirement: "Theory" as SubjectRequirement },
+      { code: "U18GEI2201", name: "GERMAN LEVEL I", credits: 3, type: "Elective" as CourseType, requirement: "Theory" as SubjectRequirement },
+      { code: "U18FRI2201", name: "FRENCH LEVEL I", credits: 3, type: "Elective" as CourseType, requirement: "Theory" as SubjectRequirement },
     ],
   },
   {
@@ -66,16 +67,15 @@ const semesterData = [
     icon: <Code2 className="w-5 h-5" />,
     color: "from-slate-600 to-slate-700",
     courses: [
-      { code: "U18MAI2201", name: "ADVANCED CALCULUS AND LAPLACE TRANSFORMS", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
-      { code: "U18CSI2202", name: "DIGITAL LOGIC AND MICROPROCESSOR", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
-      { code: "U18BTI2201", name: "COMPUTATIONAL BIOLOGY", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
-      { code: "U18INI2600", name: "ENGINEERING CLINIC -II", credits: 3, type: "Core", requirement: "Practical" },
-      { code: "U18CSI2201", name: "PYTHON PROGRAMMING", credits: 3, type: "Core", requirement: "Embedded TL - 2+1" },
-      { code: "U18ENI0202", name: "PROFESSIONAL COMMUNICATION", credits: 3, type: "Core", requirement: "Embedded TL - 2+1" },
-      { code: "U18TLR2001", name: "TAMILS AND TECHNOLOGY", credits: 1, type: "Core", requirement: "Theory" },
-      { code: "U18MAR0003", name: "TECH FOR GOOD: ACHIEVING THE SDGs BY THE ROLE OF ICT", credits: 2, type: "Audit Course", requirement: "Theory" },
-      { code: "U18PED0001", name: "PHYSICAL EDUCATION", credits: 0, type: "Mandatory Course", requirement: "Non Academic" },
-      { code: "U17MENTOR-1", name: "U17MENTOR-1", credits: 0, type: "Mandatory Course", requirement: "Non Academic" },
+      { code: "U18BTI2201T-R21", name: "COMPUTATIONAL BIOLOGY", credits: 4, type: "Core", requirement: "Theory" },
+      { code: "U18CSI2201T-R21", name: "PYTHON PROGRAMMING", credits: 3, type: "Core", requirement: "Theory" },
+      { code: "U18CSI2202T-R21", name: "DIGITAL LOGIC AND MICROPROCESSOR", credits: 4, type: "Core", requirement: "Theory" },
+      { code: "U18ENI0202T-R21", name: "PROFESSIONAL COMMUNICATION", credits: 3, type: "Core", requirement: "Theory" },
+      { code: "U18INI2600-R21", name: "ENGINEERING CLINIC -II", credits: 3, type: "Core", requirement: "Practical" },
+      { code: "U18MAI2201T-R21", name: "ADVANCED CALCULUS AND LAPLACE TRANSFORMS", credits: 4, type: "Core", requirement: "Theory" },
+      { code: "U18MAR0003-R21", name: "TECH FOR GOOD: ACHIEVING THE SDGs BY THE ROLE OF ICT", credits: 2, type: "Audit Course", requirement: "Theory" },
+      { code: "U18TLR2001-R21", name: "TAMILS AND TECHNOLOGY", credits: 1, type: "Core", requirement: "Theory" },
+      { code: "U18ENI0202L-R21", name: "PROFESSIONAL COMMUNICATION", credits: 0, type: "Core", requirement: "Practical" },
     ],
   },
   {
@@ -84,13 +84,13 @@ const semesterData = [
     icon: <Database className="w-5 h-5" />,
     color: "from-slate-800 to-slate-900",
     courses: [
-      { code: "U18MAT3102", name: "DISCRETE MATHEMATICS", credits: 4, type: "Core", requirement: "Theory" },
       { code: "U18CSI3201", name: "DATA STRUCTURES", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
       { code: "U18CSI3202", name: "OBJECT ORIENTED PROGRAMMING", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
       { code: "U18CSI3204", name: "DATABASE MANAGEMENT SYSTEMS", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
       { code: "U18CSI6201", name: "INTERNET AND WEB PROGRAMMING", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
       { code: "U18CST3003", name: "COMPUTER ARCHITECTURE", credits: 3, type: "Core", requirement: "Theory" },
-      { code: "U18INI3600", name: "ENGINEERING CLINIC -III", credits: 3, type: "Core", requirement: "Project" },
+      { code: "U18INI3600", name: "ENGINEERING CLINIC-III", credits: 3, type: "Core", requirement: "Project" },
+      { code: "U18MAT3102", name: "DISCRETE MATHEMATICS", credits: 4, type: "Core", requirement: "Theory" },
     ],
   },
   {
@@ -99,14 +99,13 @@ const semesterData = [
     icon: <Cpu className="w-5 h-5" />,
     color: "from-slate-700 to-slate-800",
     courses: [
-      { code: "U18CSI2202", name: "DIGITAL LOGIC AND MICROPROCESSOR", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
-      { code: "U18MAI4201", name: "PROBABILITY AND STATISTICS", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
       { code: "U18CSI4202", name: "OPERATING SYSTEMS", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
       { code: "U18CSI4204", name: "SOFTWARE ENGINEERING", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
       { code: "U18CSI5201", name: "Computer Networks", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
-      { code: "U18CSI5203", name: "No SQL databases", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
-      { code: "U18CST4001", name: "DESIGN AND ANALYSIS OF ALGORITHMS", credits: 3, type: "Core", requirement: "Theory" },
-      { code: "U18INI4600", name: "ENGINEERING CLINIC-IV", credits: 3, type: "Core", requirement: "Practical" },
+      { code: "U18CS15203", name: "No SQL databases", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
+      { code: "U18CST4001", name: "DESIGN AND ANALYSIS OF ALGORITHMS", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
+      { code: "U18INI4600", name: "ENGINEERING CLINIC-IV", credits: 4, type: "Core", requirement: "Practical" },
+      { code: "U18MAI4201", name: "PROBABILITY AND STATISTICS", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
     ],
   },
 ]
@@ -143,6 +142,11 @@ const getRequirementColor = (requirement: SubjectRequirement) => {
 
 export default function KCTCSECGPACalculator() {
   const [grades, setGrades] = useState<Record<string, Grade>>({})
+  const [selectedLanguage, setSelectedLanguage] = useState(
+    Array.isArray(semesterData[0].languageElectives) && semesterData[0].languageElectives.length > 0
+      ? semesterData[0].languageElectives[0].code
+      : ""
+  )
 
   const handleGradeChange = (courseCode: string, grade: Grade) => {
     setGrades((prev) => ({
@@ -229,6 +233,97 @@ export default function KCTCSECGPACalculator() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
+                {semester.semester === 1 && Array.isArray(semester.languageElectives) && (
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Language Elective</label>
+                    <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                      <SelectTrigger className="w-full h-10 bg-white border-slate-300 focus:ring-slate-400">
+                        <SelectValue>
+                          {semester.languageElectives?.find(l => l.code === selectedLanguage)?.name || "Select Language"}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border-2 border-slate-200 shadow-lg">
+                        {semester.languageElectives?.map(lang => (
+                          <SelectItem key={lang.code} value={lang.code} className="hover:bg-slate-100 focus:bg-slate-100 cursor-pointer font-medium">
+                            <span>{lang.name}</span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <div className="mt-4 flex flex-col space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-slate-800">{semester.languageElectives?.find(l => l.code === selectedLanguage)?.code}</p>
+                        <p className="text-sm text-slate-600 line-clamp-2">{semester.languageElectives?.find(l => l.code === selectedLanguage)?.name}</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <Badge variant="secondary" className="text-xs">{semester.languageElectives?.find(l => l.code === selectedLanguage)?.credits} Credits</Badge>
+                          <Badge variant="secondary" className={`text-xs ${getTypeColor("Elective")}`}>Elective</Badge>
+                          <Badge variant="secondary" className={`text-xs ${getRequirementColor("Theory")}`}>Theory</Badge>
+                        </div>
+                      </div>
+                      <div className="flex-shrink-0">
+                        <Select
+                          value={grades[selectedLanguage] || "NOT_GRADED"}
+                          onValueChange={(value: Grade) => {
+                            if (value === "NOT_GRADED") {
+                              const newGrades = { ...grades }
+                              delete newGrades[selectedLanguage]
+                              setGrades(newGrades)
+                            } else {
+                              handleGradeChange(selectedLanguage, value)
+                            }
+                          }}
+                        >
+                          <SelectTrigger className="w-full h-10 bg-white border-slate-300 focus:ring-slate-400">
+                            <SelectValue>
+                              {grades[selectedLanguage] ? (
+                                <span className={`font-medium ${
+                                  grades[selectedLanguage] === "O" ? "text-green-600" :
+                                  grades[selectedLanguage] === "A+" ? "text-blue-600" :
+                                  grades[selectedLanguage] === "A" ? "text-blue-500" :
+                                  grades[selectedLanguage] === "B+" ? "text-yellow-600" :
+                                  grades[selectedLanguage] === "B" ? "text-yellow-500" :
+                                  grades[selectedLanguage] === "C" ? "text-orange-500" :
+                                  grades[selectedLanguage] === "RA" ? "text-red-500" :
+                                  "text-slate-400"
+                                }`}>
+                                  {grades[selectedLanguage]}
+                                </span>
+                              ) : (
+                                <span className="text-slate-400">Grade</span>
+                              )}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border-2 border-slate-200 shadow-lg">
+                            <SelectItem value="NOT_GRADED" className="hover:bg-slate-100 focus:bg-slate-100 cursor-pointer font-medium">
+                              <span className="text-slate-400">Not Graded</span> <span className="text-slate-400">(N/A)</span>
+                            </SelectItem>
+                            <SelectItem value="O" className="hover:bg-slate-100 focus:bg-slate-100 cursor-pointer font-medium">
+                              <span className="text-green-600">O</span> <span className="text-slate-600">(10)</span>
+                            </SelectItem>
+                            <SelectItem value="A+" className="hover:bg-slate-100 focus:bg-slate-100 cursor-pointer font-medium">
+                              <span className="text-blue-600">A+</span> <span className="text-slate-600">(9)</span>
+                            </SelectItem>
+                            <SelectItem value="A" className="hover:bg-slate-100 focus:bg-slate-100 cursor-pointer font-medium">
+                              <span className="text-blue-500">A</span> <span className="text-slate-600">(8)</span>
+                            </SelectItem>
+                            <SelectItem value="B+" className="hover:bg-slate-100 focus:bg-slate-100 cursor-pointer font-medium">
+                              <span className="text-yellow-600">B+</span> <span className="text-slate-600">(7)</span>
+                            </SelectItem>
+                            <SelectItem value="B" className="hover:bg-slate-100 focus:bg-slate-100 cursor-pointer font-medium">
+                              <span className="text-yellow-500">B</span> <span className="text-slate-600">(6)</span>
+                            </SelectItem>
+                            <SelectItem value="C" className="hover:bg-slate-100 focus:bg-slate-100 cursor-pointer font-medium">
+                              <span className="text-orange-500">C</span> <span className="text-slate-600">(5)</span>
+                            </SelectItem>
+                            <SelectItem value="RA" className="hover:bg-slate-100 focus:bg-slate-100 cursor-pointer font-medium">
+                              <span className="text-red-500">RA</span> <span className="text-slate-600">(0)</span>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 {semester.courses.map((course) => (
                   <div
                     key={course.code}
@@ -417,12 +512,6 @@ export default function KCTCSECGPACalculator() {
                   <span className="text-slate-600">=</span>
                   <span className="text-red-500 font-bold">0</span>
                   <span className="text-slate-500 text-sm">(&lt;40)</span>
-                </div>
-                <div className="flex items-center space-x-2 p-2 bg-slate-50 rounded-lg border border-slate-200">
-                  <span className="text-slate-400 font-bold text-lg">-</span>
-                  <span className="text-slate-400">=</span>
-                  <span className="text-slate-400 font-bold">N/A</span>
-                  <span className="text-slate-400 text-sm">(Not Graded)</span>
                 </div>
               </div>
             </div>
