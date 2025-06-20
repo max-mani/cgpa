@@ -51,7 +51,6 @@ const semesterData = [
       { code: "U18MAI1202", name: "Linear Algebra and Calculus", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
       { code: "U18CSI1201", name: "Structured Programming using C", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
       { code: "U18INI1600", name: "Engineering Clinic-I", credits: 3, type: "Core", requirement: "Practical" },
-      { code: "U18TLR1001", name: "Heritage of Tamils", credits: 1, type: "Core", requirement: "Theory" },
       { code: "U18CSR1001", name: "Disruptive Technologies", credits: 2, type: "Audit Course", requirement: "Theory" },
     ],
     languageElectives: [
@@ -73,8 +72,6 @@ const semesterData = [
       { code: "U18INI2600", name: "Engineering Clinic-II", credits: 3, type: "Core", requirement: "Practical" },
       { code: "U18CSI2201", name: "Python Programming", credits: 3, type: "Core", requirement: "Embedded TL - 3+1" },
       { code: "U18ENI0202", name: "Professional Communication", credits: 3, type: "Core", requirement: "Embedded TL - 3+1" },
-      { code: "U18TLR2001", name: "Tamils and Technology", credits: 1, type: "Core", requirement: "Theory" },
-      { code: "U18MAR0003", name: "Tech for Good: Achieving the SDGs by the Role of ICT", credits: 2, type: "Audit Course", requirement: "Theory" },
     ],
   },
   {
@@ -240,43 +237,61 @@ export default function KCTCSECGPACalculator() {
   const calculateSGPA = (semester: (typeof courseData)[0], semesterIdx?: number) => {
     let totalCredits = 0
     let totalGradePoints = 0
+    let raCount = 0
 
     // For Semester 1, include the selected language elective if present
     if (semester.semester === 1 && Array.isArray(semester.languageElectives)) {
       const lang = semester.languageElectives.find(l => l.code === selectedLanguage)
       const langGrade = grades[selectedLanguage]
       if (lang && langGrade && isValidGrade(langGrade)) {
-        totalCredits += lang.credits
-        totalGradePoints += gradePoints[langGrade] * lang.credits
+        if (langGrade === "RA") {
+          raCount++
+        } else {
+          totalCredits += lang.credits
+          totalGradePoints += gradePoints[langGrade] * lang.credits
+        }
       }
     }
 
     semester.courses.forEach((course) => {
-      // Skip audit courses, mandatory courses, and not graded courses
-      if (course.type === "Audit Course" || course.type === "Mandatory Course") return
+      // Skip only mandatory courses, not audit or RA
+      if (course.type === "Mandatory Course") return
       const grade = grades[course.code]
       if (grade && isValidGrade(grade)) {
-        totalCredits += course.credits
-        totalGradePoints += gradePoints[grade] * course.credits
+        if (grade === "RA") {
+          raCount++
+        } else {
+          totalCredits += course.credits
+          totalGradePoints += gradePoints[grade] * course.credits
+        }
       }
     })
 
-    return totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(4) : "0.0000"
+    return {
+      sgpa: totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(4) : "0.0000",
+      raCount,
+    }
   }
+
   const calculateCGPA = useMemo(() => {
     let totalCredits = 0
     let totalGradePoints = 0
+    let raCount = 0
     courseData.forEach((semester) => {
       semester.courses.forEach((course) => {
-        if (course.type === "Audit Course" || course.type === "Mandatory Course") return
+        if (course.type === "Mandatory Course") return
         const grade = grades[course.code]
         if (grade && isValidGrade(grade)) {
+          if (grade === "RA") raCount++
           totalCredits += course.credits
           totalGradePoints += gradePoints[grade] * course.credits
         }
       })
     })
-    return totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(4) : "0.0000"
+    return {
+      cgpa: totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(4) : "0.0000",
+      raCount,
+    }
   }, [grades, courseData])
 
   return (
@@ -623,7 +638,7 @@ export default function KCTCSECGPACalculator() {
                     <span className="text-sm font-medium text-slate-600">Semester GPA:</span>
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-slate-600 rounded-full animate-pulse"></div>
-                      <span className="text-2xl font-bold text-slate-800">{calculateSGPA(semester, semesterIdx)}</span>
+                      <span className="text-2xl font-bold text-slate-800">{calculateSGPA(semester, semesterIdx).sgpa}</span>
                     </div>
                   </div>
                 </div>
@@ -643,11 +658,14 @@ export default function KCTCSECGPACalculator() {
               <div className="relative inline-block">
                 <div className="w-56 h-56 bg-gradient-to-br from-slate-700 to-slate-800 rounded-full shadow-2xl flex items-center justify-center relative overflow-hidden">
                   <div className="absolute inset-0 bg-white/10 rounded-full animate-pulse"></div>
-                  <span className="text-4xl md:text-5xl font-bold text-white relative z-10 break-words text-center" style={{wordBreak: 'break-all'}}>{calculateCGPA}</span>
+                  <span className="text-4xl md:text-5xl font-bold text-white relative z-10 break-words text-center" style={{wordBreak: 'break-all'}}>{calculateCGPA.cgpa}</span>
                 </div>
                 <div className="absolute -top-2 -right-2 w-6 h-6 bg-slate-600 rounded-full animate-bounce"></div>
               </div>
               <p className="text-slate-600 mt-6 text-lg">Cumulative Grade Point Average</p>
+              {calculateCGPA.raCount > 0 && (
+                <p className="text-red-600 mt-2 text-base font-semibold">RA Count: {calculateCGPA.raCount}</p>
+              )}
               <div className="mt-4 flex justify-center space-x-4 text-sm text-slate-500">
                 <span>KCT CSE</span>
                 <span>•</span>
