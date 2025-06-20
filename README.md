@@ -2,6 +2,8 @@
 
 A modern web application to calculate CGPA and SGPA for students of Kumaraguru College of Technology (KCT), Computer Science & Engineering (CSE) department.
 
+**Live Demo:** [https://kct-cse-cgpa-calculator.netlify.app/](https://kct-cse-cgpa-calculator.netlify.app/)
+
 ## Features
 - Calculate SGPA for each semester and overall CGPA
 - Preloaded with official KCT CSE curriculum (course codes, credits, requirements)
