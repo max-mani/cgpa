@@ -146,6 +146,15 @@ export default function KCTCSECGPACalculator() {
       ? semesterData[0].languageElectives[0].code
       : ""
   )
+  const [courseData, setCourseData] = useState(semesterData)
+  const [editingCourse, setEditingCourse] = useState<{ semesterIndex: number; courseIndex: number } | null>(null)
+  const [editForm, setEditForm] = useState({
+    code: "",
+    name: "",
+    credits: 0,
+    type: "Core" as CourseType,
+    requirement: "Theory" as SubjectRequirement,
+  })
 
   const handleGradeChange = (courseCode: string, grade: Grade) => {
     setGrades((prev) => ({
@@ -154,14 +163,97 @@ export default function KCTCSECGPACalculator() {
     }))
   }
 
-  const calculateSGPA = (semester: (typeof semesterData)[0]) => {
+  const addCourse = (semesterIndex: number) => {
+    const newCourse = {
+      code: `NEW${Date.now()}`,
+      name: "New Course",
+      credits: 3,
+      type: "Core" as CourseType,
+      requirement: "Theory" as SubjectRequirement,
+    }
+    setCourseData((prev) => {
+      const updated = [...prev]
+      updated[semesterIndex] = {
+        ...updated[semesterIndex],
+        courses: [...updated[semesterIndex].courses, newCourse],
+      }
+      return updated
+    })
+  }
+
+  const deleteCourse = (semesterIndex: number, courseIndex: number) => {
+    const courseCode = courseData[semesterIndex].courses[courseIndex].code
+    setCourseData((prev) => {
+      const updated = [...prev]
+      updated[semesterIndex] = {
+        ...updated[semesterIndex],
+        courses: updated[semesterIndex].courses.filter((_, idx) => idx !== courseIndex),
+      }
+      return updated
+    })
+    setGrades((prev) => {
+      const updated = { ...prev }
+      delete updated[courseCode]
+      return updated
+    })
+  }
+
+  const startEditCourse = (semesterIndex: number, courseIndex: number) => {
+    const course = courseData[semesterIndex].courses[courseIndex]
+    setEditForm({
+      code: course.code,
+      name: course.name,
+      credits: course.credits,
+      type: course.type as CourseType,
+      requirement: course.requirement as SubjectRequirement,
+    })
+    setEditingCourse({ semesterIndex, courseIndex })
+  }
+  const saveEditCourse = () => {
+    if (!editingCourse) return
+    const oldCourseCode = courseData[editingCourse.semesterIndex].courses[editingCourse.courseIndex].code
+    setCourseData((prev) => {
+      const updated = [...prev]
+      updated[editingCourse.semesterIndex].courses[editingCourse.courseIndex] = {
+        ...editForm,
+        credits: Number(editForm.credits),
+      }
+      return updated
+    })
+    if (oldCourseCode !== editForm.code) {
+      setGrades((prev) => {
+        const updated = { ...prev }
+        if (updated[oldCourseCode]) {
+          updated[editForm.code] = updated[oldCourseCode]
+          delete updated[oldCourseCode]
+        }
+        return updated
+      })
+    }
+    setEditingCourse(null)
+  }
+  const cancelEdit = () => {
+    setEditingCourse(null)
+    setEditForm({ code: "", name: "", credits: 0, type: "Core", requirement: "Theory" })
+  }
+
+  const calculateSGPA = (semester: (typeof courseData)[0], semesterIdx?: number) => {
     let totalCredits = 0
     let totalGradePoints = 0
+
+    // For Semester 1, include the selected language elective if present
+    if (semester.semester === 1 && Array.isArray(semester.languageElectives)) {
+      const lang = semester.languageElectives.find(l => l.code === selectedLanguage)
+      const langGrade = grades[selectedLanguage]
+      if (lang && langGrade && isValidGrade(langGrade)) {
+        totalCredits += lang.credits
+        totalGradePoints += gradePoints[langGrade] * lang.credits
+      }
+    }
 
     semester.courses.forEach((course) => {
       // Skip audit courses, mandatory courses, and not graded courses
       if (course.type === "Audit Course" || course.type === "Mandatory Course") return
-      
       const grade = grades[course.code]
       if (grade && isValidGrade(grade)) {
         totalCredits += course.credits
@@ -171,16 +263,12 @@ export default function KCTCSECGPACalculator() {
 
     return totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(4) : "0.0000"
   }
-
   const calculateCGPA = useMemo(() => {
     let totalCredits = 0
     let totalGradePoints = 0
-
-    semesterData.forEach((semester) => {
+    courseData.forEach((semester) => {
       semester.courses.forEach((course) => {
-        // Skip audit courses, mandatory courses, and not graded courses
         if (course.type === "Audit Course" || course.type === "Mandatory Course") return
-
         const grade = grades[course.code]
         if (grade && isValidGrade(grade)) {
           totalCredits += course.credits
@@ -188,9 +276,8 @@ export default function KCTCSECGPACalculator() {
         }
       })
     })
-
     return totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(4) : "0.0000"
-  }, [grades])
+  }, [grades, courseData])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-100 to-slate-200">
@@ -219,7 +306,7 @@ export default function KCTCSECGPACalculator() {
 
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {semesterData.map((semester, index) => (
+          {courseData.map((semester, semesterIdx) => (
             <Card
               key={semester.semester}
               className="bg-white/95 backdrop-blur-sm border border-slate-200 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] group"
@@ -323,26 +410,139 @@ export default function KCTCSECGPACalculator() {
                     </div>
                   </div>
                 )}
-                {semester.courses.map((course) => (
-                  <div
-                    key={course.code}
-                    className="flex flex-col space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-100 hover:bg-slate-100 transition-all duration-300"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-slate-800">{course.code}</p>
-                      <p className="text-sm text-slate-600 line-clamp-2">{course.name}</p>
-                      <div className="mt-2 flex flex-wrap gap-2">
+                {semester.courses.map((course, courseIdx) => (
+                  <div key={course.code}>
+                    {editingCourse?.semesterIndex === semesterIdx && editingCourse?.courseIndex === courseIdx ? (
+                      <div className="p-4 bg-blue-50 rounded-xl border-2 border-blue-200 space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-medium text-slate-700 mb-1">Course Code</label>
+                            <input
+                              type="text"
+                              placeholder="Course Code"
+                              value={editForm.code}
+                              onChange={(e) => setEditForm((prev) => ({ ...prev, code: e.target.value }))}
+                              className="px-3 py-2 border border-slate-300 rounded-lg text-sm w-full"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-slate-700 mb-1">Credits</label>
+                            <input
+                              type="number"
+                              placeholder="Credits"
+                              value={editForm.credits}
+                              onChange={(e) => setEditForm((prev) => ({ ...prev, credits: Number(e.target.value) }))}
+                              className="px-3 py-2 border border-slate-300 rounded-lg text-sm w-full"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-slate-700 mb-1">Course Name</label>
+                          <input
+                            type="text"
+                            placeholder="Course Name"
+                            value={editForm.name}
+                            onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-medium text-slate-700 mb-1">Type</label>
+                            <select
+                              value={editForm.type}
+                              onChange={(e) => setEditForm((prev) => ({ ...prev, type: e.target.value as CourseType }))}
+                              className="px-3 py-2 border border-slate-300 rounded-lg text-sm w-full"
+                            >
+                              <option value="Core">Core</option>
+                              <option value="Elective">Elective</option>
+                              <option value="Audit Course">Audit Course</option>
+                              <option value="Mandatory Course">Mandatory Course</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-slate-700 mb-1">Requirement</label>
+                            <select
+                              value={editForm.requirement}
+                              onChange={(e) => setEditForm((prev) => ({ ...prev, requirement: e.target.value as SubjectRequirement }))}
+                              className="px-3 py-2 border border-slate-300 rounded-lg text-sm w-full"
+                            >
+                              <option value="Embedded TL - 3+1">Embedded TL - 3+1</option>
+                              <option value="Embedded TL - 2+1">Embedded TL - 2+1</option>
+                              <option value="Theory">Theory</option>
+                              <option value="Practical">Practical</option>
+                              <option value="Project">Project</option>
+                              <option value="Non Academic">Non Academic</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={saveEditCourse}
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={cancelEdit}
+                            className="px-4 py-2 bg-gray-500 text-white rounded-lg text-sm hover:bg-gray-600 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 hover:bg-slate-100 transition-all duration-300 group/course">
+                        <div className="flex-1 min-w-0 mb-3 sm:mb-0">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <p className="text-sm font-bold text-slate-800 group-hover/course:text-slate-900 transition-colors">
+                              {course.code}
+                            </p>
+                            <Badge variant="outline" className="text-xs bg-slate-100 text-slate-600">
+                              {course.type}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-slate-600 group-hover/course:text-slate-700 transition-colors line-clamp-2 mb-1">
+                            {course.name}
+                          </p>
+                          <div className="flex items-center space-x-3">
                         <Badge variant="secondary" className="text-xs">
                           {course.credits} Credits
-                        </Badge>
-                        <Badge variant="secondary" className={`text-xs ${getTypeColor(course.type as CourseType)}`}>
-                          {course.type}
                         </Badge>
                         <Badge variant="secondary" className={`text-xs ${getRequirementColor(course.requirement as SubjectRequirement)}`}>
                           {course.requirement}
                         </Badge>
                       </div>
                     </div>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => startEditCourse(semesterIdx, courseIdx)}
+                            className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                            title="Edit Course"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => deleteCourse(semesterIdx, courseIdx)}
+                            className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                            title="Delete Course"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
+                          </button>
                     <div className="flex-shrink-0">
                       <Select
                         value={grades[course.code] || "NOT_GRADED"}
@@ -356,7 +556,7 @@ export default function KCTCSECGPACalculator() {
                           }
                         }}
                       >
-                        <SelectTrigger className="w-full h-10 bg-white border-slate-300 focus:ring-slate-400">
+                              <SelectTrigger className="w-full h-10 bg-white border-slate-300 focus:ring-slate-400 rounded-lg">
                           <SelectValue>
                             {grades[course.code] ? (
                               <span className={`font-medium ${
@@ -376,7 +576,7 @@ export default function KCTCSECGPACalculator() {
                             )}
                           </SelectValue>
                         </SelectTrigger>
-                        <SelectContent className="bg-white border-2 border-slate-200 shadow-lg">
+                              <SelectContent className="bg-white border-2 border-slate-200 shadow-lg rounded-lg">
                           <SelectItem value="NOT_GRADED" className="hover:bg-slate-100 focus:bg-slate-100 cursor-pointer font-medium">
                             <span className="text-slate-400">Not Graded</span> <span className="text-slate-400">(N/A)</span>
                           </SelectItem>
@@ -404,16 +604,26 @@ export default function KCTCSECGPACalculator() {
                         </SelectContent>
                       </Select>
                     </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
-
-                {/* SGPA Display */}
+                <button
+                  onClick={() => addCourse(semesterIdx)}
+                  className="w-full p-4 border-2 border-dashed border-slate-300 rounded-xl text-slate-600 hover:border-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-all duration-300 flex items-center justify-center space-x-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <span className="font-medium">Add Course</span>
+                </button>
                 <div className="mt-6 p-4 bg-gradient-to-r from-slate-100 to-slate-50 backdrop-blur-sm rounded-xl border border-slate-200">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-slate-600">Semester GPA:</span>
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-slate-600 rounded-full animate-pulse"></div>
-                      <span className="text-2xl font-bold text-slate-800">{calculateSGPA(semester)}</span>
+                      <span className="text-2xl font-bold text-slate-800">{calculateSGPA(semester, semesterIdx)}</span>
                     </div>
                   </div>
                 </div>
