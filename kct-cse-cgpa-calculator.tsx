@@ -160,6 +160,7 @@ export default function KCTCSECGPACalculator() {
       : ""
   )
   const [courseData, setCourseData] = useState(semesterData)
+  const [manualSGPA, setManualSGPA] = useState<Record<number, { sgpa: string; credits: number }>>({})
   const [editingCourse, setEditingCourse] = useState<{ semesterIndex: number; courseIndex: number } | null>(null)
   const [editForm, setEditForm] = useState({
     code: "",
@@ -250,7 +251,66 @@ export default function KCTCSECGPACalculator() {
     setEditForm({ code: "", name: "", credits: 0, type: "Core", requirement: "Theory" })
   }
 
+  const getSemesterCredits = (semester: (typeof courseData)[0]) => {
+    let totalCredits = 0
+    
+    // Include language elective for Semester 1
+    if (semester.semester === 1 && Array.isArray(semester.languageElectives)) {
+      const lang = semester.languageElectives.find(l => l.code === selectedLanguage)
+      if (lang) totalCredits += lang.credits
+    }
+    
+    // Include regular courses (excluding Mandatory Courses)
+    semester.courses.forEach((course) => {
+      if (course.type !== "Mandatory Course") {
+        totalCredits += course.credits
+      }
+    })
+    
+    return totalCredits
+  }
+
+  const handleManualSGPAChange = (semesterNum: number, value: string) => {
+    const semester = courseData.find(s => s.semester === semesterNum)
+    if (!semester) return
+    
+    const credits = getSemesterCredits(semester)
+    
+    if (value === "" || value === "0.0000") {
+      // Clear manual SGPA - re-enable grade selection
+      setManualSGPA((prev) => {
+        const updated = { ...prev }
+        delete updated[semesterNum]
+        return updated
+      })
+    } else {
+      // Set manual SGPA - disable grade selection
+      const numValue = parseFloat(value)
+      if (!isNaN(numValue) && numValue >= 0 && numValue <= 10) {
+        setManualSGPA((prev) => ({
+          ...prev,
+          [semesterNum]: {
+            sgpa: value,
+            credits: credits,
+          },
+        }))
+      }
+    }
+  }
+
+  const isSemesterDisabled = (semesterNum: number) => {
+    return !!manualSGPA[semesterNum]
+  }
+
   const calculateSGPA = (semester: (typeof courseData)[0], semesterIdx?: number) => {
+    // If manual SGPA exists for this semester, return it
+    if (manualSGPA[semester.semester]) {
+      return {
+        sgpa: manualSGPA[semester.semester].sgpa,
+        raCount: 0, // Manual SGPA doesn't track RA count
+      }
+    }
+    
     let totalCredits = 0
     let totalGradePoints = 0
     let raCount = 0
@@ -295,6 +355,21 @@ export default function KCTCSECGPACalculator() {
     let raCount = 0
     
     courseData.forEach((semester) => {
+      const semesterNum = semester.semester
+      
+      // Check if manual SGPA exists for this semester
+      if (manualSGPA[semesterNum]) {
+        const manual = manualSGPA[semesterNum]
+        const sgpaValue = parseFloat(manual.sgpa)
+        if (!isNaN(sgpaValue) && manual.credits > 0) {
+          // Use manual SGPA: SGPA × Credits = Total Grade Points
+          totalCredits += manual.credits
+          totalGradePoints += sgpaValue * manual.credits
+        }
+        return // Skip individual course calculation for this semester
+      }
+      
+      // Otherwise, calculate from individual grades
       // Include language electives for Semester 1
       if (semester.semester === 1 && Array.isArray(semester.languageElectives)) {
         const lang = semester.languageElectives.find(l => l.code === selectedLanguage)
@@ -325,7 +400,7 @@ export default function KCTCSECGPACalculator() {
       cgpa: totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(4) : "0.0000",
       raCount,
     }
-  }, [grades, courseData, selectedLanguage])
+  }, [grades, courseData, selectedLanguage, manualSGPA])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-100 to-slate-200">
@@ -370,8 +445,8 @@ export default function KCTCSECGPACalculator() {
                 {semester.semester === 1 && Array.isArray(semester.languageElectives) && (
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-slate-700 mb-1">Language Elective</label>
-                    <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                      <SelectTrigger className="w-full h-10 bg-white border-slate-300 focus:ring-slate-400">
+                    <Select value={selectedLanguage} onValueChange={setSelectedLanguage} disabled={isSemesterDisabled(1)}>
+                      <SelectTrigger className={`w-full h-10 bg-white border-slate-300 focus:ring-slate-400 ${isSemesterDisabled(1) ? 'opacity-50 cursor-not-allowed' : ''}`}>
                         <SelectValue>
                           {semester.languageElectives?.find(l => l.code === selectedLanguage)?.name || "Select Language"}
                         </SelectValue>
@@ -406,8 +481,9 @@ export default function KCTCSECGPACalculator() {
                               handleGradeChange(selectedLanguage, value)
                             }
                           }}
+                          disabled={isSemesterDisabled(1)}
                         >
-                          <SelectTrigger className="w-full h-10 bg-white border-slate-300 focus:ring-slate-400">
+                          <SelectTrigger className={`w-full h-10 bg-white border-slate-300 focus:ring-slate-400 ${isSemesterDisabled(1) ? 'opacity-50 cursor-not-allowed' : ''}`}>
                             <SelectValue>
                               {grades[selectedLanguage] ? (
                                 <span className={`font-medium ${
@@ -603,8 +679,9 @@ export default function KCTCSECGPACalculator() {
                             handleGradeChange(course.code, value)
                           }
                         }}
+                        disabled={isSemesterDisabled(semester.semester)}
                       >
-                              <SelectTrigger className="w-full h-10 bg-white border-slate-300 focus:ring-slate-400 rounded-lg">
+                              <SelectTrigger className={`w-full h-10 bg-white border-slate-300 focus:ring-slate-400 rounded-lg ${isSemesterDisabled(semester.semester) ? 'opacity-50 cursor-not-allowed' : ''}`}>
                           <SelectValue>
                             {grades[course.code] ? (
                               <span className={`font-medium ${
@@ -671,9 +748,42 @@ export default function KCTCSECGPACalculator() {
                     <span className="text-sm font-medium text-slate-600">Semester GPA:</span>
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-slate-600 rounded-full animate-pulse"></div>
-                      <span className="text-2xl font-bold text-slate-800">{calculateSGPA(semester, semesterIdx).sgpa}</span>
+                      <input
+                        type="number"
+                        step="0.0001"
+                        min="0"
+                        max="10"
+                        value={manualSGPA[semester.semester]?.sgpa || calculateSGPA(semester, semesterIdx).sgpa}
+                        onChange={(e) => handleManualSGPAChange(semester.semester, e.target.value)}
+                        onBlur={(e) => {
+                          // Format to 4 decimal places on blur
+                          const value = e.target.value
+                          if (value && !isNaN(parseFloat(value))) {
+                            const formatted = parseFloat(value).toFixed(4)
+                            handleManualSGPAChange(semester.semester, formatted)
+                          }
+                        }}
+                        className="text-2xl font-bold text-slate-800 bg-transparent border-b-2 border-slate-300 focus:border-slate-600 focus:outline-none w-32 text-right pr-2"
+                        placeholder="0.0000"
+                      />
+                      {manualSGPA[semester.semester] && (
+                        <button
+                          onClick={() => handleManualSGPAChange(semester.semester, "")}
+                          className="ml-2 p-1 text-red-600 hover:bg-red-100 rounded transition-colors"
+                          title="Clear manual SGPA"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
                   </div>
+                  {manualSGPA[semester.semester] && (
+                    <p className="text-xs text-slate-500 mt-2">
+                      Manual entry active - Grade selection disabled for this semester
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
