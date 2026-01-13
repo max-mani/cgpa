@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 
-import { Code2, Cpu, Database, GraduationCap, Calculator, BookOpen } from "lucide-react"
+import { Code2, Cpu, Database, GraduationCap, Calculator, BookOpen, Cloud } from "lucide-react"
 import Image from "next/image"
 
 // Grade points mapping
@@ -102,6 +102,22 @@ const semesterData = [
       { code: "U18CSI5203", name: "No SQL Databases", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
       { code: "U18CST4001", name: "Design and Analysis of Algorithms", credits: 3, type: "Core", requirement: "Theory" },
       { code: "U18INI4600", name: "Engineering Clinic-IV", credits: 3, type: "Core", requirement: "Practical" },
+    ],
+  },
+  {
+    semester: 5,
+    title: "Semester V",
+    icon: <Cloud className="w-5 h-5" />,
+    color: "from-slate-600 to-slate-700",
+    courses: [
+      { code: "U18CSE1XXX", name: "Elective I", credits: 3, type: "Elective", requirement: "Theory" },
+      { code: "U18CSE2XXX", name: "Elective II", credits: 3, type: "Elective", requirement: "Theory" },
+      { code: "U18CSI6203", name: "Data Warehousing and Data Mining", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
+      { code: "U18CSI7201", name: "Cloud Computing", credits: 4, type: "Core", requirement: "Embedded TL - 3+1" },
+      { code: "U18CST4003", name: "Theory of Computation", credits: 3, type: "Core", requirement: "Theory" },
+      { code: "U18CST5002", name: "Agile Software Development", credits: 3, type: "Core", requirement: "Theory" },
+      { code: "U18CST5004", name: "Social Media Marketing", credits: 3, type: "Core", requirement: "Theory" },
+      { code: "U18CST6002", name: "Wireless Networks and Mobile Systems", credits: 3, type: "Core", requirement: "Theory" },
     ],
   },
 ]
@@ -277,7 +293,23 @@ export default function KCTCSECGPACalculator() {
     let totalCredits = 0
     let totalGradePoints = 0
     let raCount = 0
+    
     courseData.forEach((semester) => {
+      // Include language electives for Semester 1
+      if (semester.semester === 1 && Array.isArray(semester.languageElectives)) {
+        const lang = semester.languageElectives.find(l => l.code === selectedLanguage)
+        const langGrade = grades[selectedLanguage]
+        if (lang && langGrade && isValidGrade(langGrade)) {
+          if (langGrade === "RA") {
+            raCount++
+          } else {
+            totalCredits += lang.credits
+            totalGradePoints += gradePoints[langGrade] * lang.credits
+          }
+        }
+      }
+      
+      // Include regular courses
       semester.courses.forEach((course) => {
         if (course.type === "Mandatory Course") return
         const grade = grades[course.code]
@@ -288,11 +320,12 @@ export default function KCTCSECGPACalculator() {
         }
       })
     })
+    
     return {
       cgpa: totalCredits > 0 ? (totalGradePoints / totalCredits).toFixed(4) : "0.0000",
       raCount,
     }
-  }, [grades, courseData])
+  }, [grades, courseData, selectedLanguage])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-100 to-slate-200">
